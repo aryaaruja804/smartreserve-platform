@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { LayoutDashboard, Building2, Tag, CalendarDays, LogOut, Zap, Menu, X } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, CalendarDays, LogOut, Zap, Menu, X, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -52,7 +52,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           );
         })}
       </nav>
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="p-3 border-t border-sidebar-border flex flex-col gap-1">
+        <Link
+          href="/"
+          onClick={() => setMobileOpen(false)}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+        >
+          <ExternalLink className="w-4 h-4" />
+          View site
+        </Link>
         <button
           onClick={handleLogout}
           data-testid="button-logout"
