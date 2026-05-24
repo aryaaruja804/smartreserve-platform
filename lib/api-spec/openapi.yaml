@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: SmartReserve — Smart Demand-Aware Offer Booking Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: businesses
+    description: Business profiles
+  - name: offers
+    description: Offer management
+  - name: slots
+    description: Slot management
+  - name: bookings
+    description: Booking management
+  - name: dashboard
+    description: Admin dashboard analytics
+  - name: public
+    description: Public customer portal
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +37,1292 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current admin user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # BUSINESSES
+  /businesses:
+    get:
+      operationId: listBusinesses
+      tags: [businesses]
+      summary: List all businesses
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of businesses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Business"
+    post:
+      operationId: createBusiness
+      tags: [businesses]
+      summary: Create a business
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+
+  /businesses/{id}:
+    get:
+      operationId: getBusiness
+      tags: [businesses]
+      summary: Get a business
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Business
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateBusiness
+      tags: [businesses]
+      summary: Update a business
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+    delete:
+      operationId: deleteBusiness
+      tags: [businesses]
+      summary: Delete a business
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # OFFERS
+  /offers:
+    get:
+      operationId: listOffers
+      tags: [offers]
+      summary: List offers (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: businessId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of offers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offer"
+    post:
+      operationId: createOffer
+      tags: [offers]
+      summary: Create an offer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfferInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+
+  /offers/{id}:
+    get:
+      operationId: getOffer
+      tags: [offers]
+      summary: Get offer details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Offer with slots and business info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateOffer
+      tags: [offers]
+      summary: Update an offer
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfferUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+    delete:
+      operationId: deleteOffer
+      tags: [offers]
+      summary: Delete an offer
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /offers/{id}/status:
+    patch:
+      operationId: updateOfferStatus
+      tags: [offers]
+      summary: Update offer status (pause/activate/cancel)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfferStatusUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+
+  # SLOTS
+  /offers/{offerId}/slots:
+    get:
+      operationId: listSlots
+      tags: [slots]
+      summary: List slots for an offer
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Slot"
+    post:
+      operationId: createSlot
+      tags: [slots]
+      summary: Create a slot for an offer
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SlotInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Slot"
+
+  /slots/{id}:
+    patch:
+      operationId: updateSlot
+      tags: [slots]
+      summary: Update a slot
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SlotUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Slot"
+    delete:
+      operationId: deleteSlot
+      tags: [slots]
+      summary: Delete a slot
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # BOOKINGS
+  /bookings:
+    get:
+      operationId: listBookings
+      tags: [bookings]
+      summary: List all bookings (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: query
+          schema:
+            type: integer
+        - name: slotId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+    post:
+      operationId: createBooking
+      tags: [bookings]
+      summary: Create a booking (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingInput"
+      responses:
+        "201":
+          description: Booking confirmed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Slot full or already booked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bookings/{id}:
+    get:
+      operationId: getBooking
+      tags: [bookings]
+      summary: Get booking details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # PUBLIC PORTAL
+  /public/offers:
+    get:
+      operationId: listPublicOffers
+      tags: [public]
+      summary: List active offers for public portal
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Public offers with demand info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicOffer"
+
+  /public/offers/featured:
+    get:
+      operationId: getFeaturedOffers
+      tags: [public]
+      summary: Get featured and trending offers
+      responses:
+        "200":
+          description: Featured and trending offers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedOffersResponse"
+
+  /public/offers/{id}:
+    get:
+      operationId: getPublicOffer
+      tags: [public]
+      summary: Get public offer detail with slots and demand info
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Public offer detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicOfferDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /public/demand-pulse:
+    get:
+      operationId: getDemandPulse
+      tags: [public]
+      summary: Get realtime demand pulse (recent booking activity)
+      responses:
+        "200":
+          description: Demand pulse data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DemandPulse"
+
+  # DASHBOARD
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get admin dashboard statistics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/activity:
+    get:
+      operationId: getDashboardActivity
+      tags: [dashboard]
+      summary: Get recent booking activity feed
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Activity feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /dashboard/demand-analytics:
+    get:
+      operationId: getDemandAnalytics
+      tags: [dashboard]
+      summary: Get demand analytics by business type and hour
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Demand analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DemandAnalytics"
+
+  /dashboard/top-offers:
+    get:
+      operationId: getTopOffers
+      tags: [dashboard]
+      summary: Get top performing offers by bookings
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Top offers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopOffer"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    # AUTH
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/AdminUser"
+
+    AdminUser:
+      type: object
+      required: [id, email, name]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+
+    # BUSINESS
+    Business:
+      type: object
+      required: [id, name, businessType, ownerName, phone, email, address, city, openingTime, closingTime]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        businessType:
+          type: string
+        ownerName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        openingTime:
+          type: string
+        closingTime:
+          type: string
+        logoUrl:
+          type: ["string", "null"]
+        bannerUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    BusinessInput:
+      type: object
+      required: [name, businessType, ownerName, phone, email, address, city, openingTime, closingTime]
+      properties:
+        name:
+          type: string
+        businessType:
+          type: string
+        ownerName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        openingTime:
+          type: string
+        closingTime:
+          type: string
+        logoUrl:
+          type: string
+        bannerUrl:
+          type: string
+
+    BusinessUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        businessType:
+          type: string
+        ownerName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        openingTime:
+          type: string
+        closingTime:
+          type: string
+        logoUrl:
+          type: string
+        bannerUrl:
+          type: string
+
+    # OFFER
+    Offer:
+      type: object
+      required: [id, businessId, title, description, category, originalPrice, offerPrice, discountPercent, startDate, endDate, startTime, endTime, status]
+      properties:
+        id:
+          type: integer
+        businessId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        originalPrice:
+          type: number
+        offerPrice:
+          type: number
+        discountPercent:
+          type: number
+        startDate:
+          type: string
+        endDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        terms:
+          type: ["string", "null"]
+        status:
+          type: string
+        bannerUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    OfferInput:
+      type: object
+      required: [businessId, title, description, category, originalPrice, offerPrice, startDate, endDate, startTime, endTime]
+      properties:
+        businessId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        originalPrice:
+          type: number
+        offerPrice:
+          type: number
+        startDate:
+          type: string
+        endDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        terms:
+          type: string
+        status:
+          type: string
+        bannerUrl:
+          type: string
+
+    OfferUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        originalPrice:
+          type: number
+        offerPrice:
+          type: number
+        startDate:
+          type: string
+        endDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        terms:
+          type: string
+        status:
+          type: string
+        bannerUrl:
+          type: string
+
+    OfferStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    OfferDetail:
+      type: object
+      required: [id, businessId, title, description, category, originalPrice, offerPrice, discountPercent, startDate, endDate, startTime, endTime, status, business, slots]
+      properties:
+        id:
+          type: integer
+        businessId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        originalPrice:
+          type: number
+        offerPrice:
+          type: number
+        discountPercent:
+          type: number
+        startDate:
+          type: string
+        endDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        terms:
+          type: ["string", "null"]
+        status:
+          type: string
+        bannerUrl:
+          type: ["string", "null"]
+        business:
+          $ref: "#/components/schemas/Business"
+        slots:
+          type: array
+          items:
+            $ref: "#/components/schemas/Slot"
+        createdAt:
+          type: string
+          format: date-time
+
+    # SLOT
+    Slot:
+      type: object
+      required: [id, offerId, slotDate, startTime, endTime, capacity, bookedCount, availableCount, status]
+      properties:
+        id:
+          type: integer
+        offerId:
+          type: integer
+        slotDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        capacity:
+          type: integer
+        bookedCount:
+          type: integer
+        availableCount:
+          type: integer
+        status:
+          type: string
+        occupancyPercent:
+          type: number
+        demandLevel:
+          type: string
+
+    SlotInput:
+      type: object
+      required: [slotDate, startTime, endTime, capacity]
+      properties:
+        slotDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        capacity:
+          type: integer
+
+    SlotUpdate:
+      type: object
+      properties:
+        slotDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        capacity:
+          type: integer
+        status:
+          type: string
+
+    # BOOKING
+    Booking:
+      type: object
+      required: [id, slotId, offerId, customerName, customerPhone, peopleCount, bookingReference, status, createdAt]
+      properties:
+        id:
+          type: integer
+        slotId:
+          type: integer
+        offerId:
+          type: integer
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        peopleCount:
+          type: integer
+        specialNote:
+          type: ["string", "null"]
+        bookingReference:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        slot:
+          $ref: "#/components/schemas/Slot"
+        offer:
+          $ref: "#/components/schemas/Offer"
+
+    BookingInput:
+      type: object
+      required: [slotId, customerName, customerPhone, peopleCount]
+      properties:
+        slotId:
+          type: integer
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: string
+        peopleCount:
+          type: integer
+          minimum: 1
+        specialNote:
+          type: string
+
+    # PUBLIC
+    PublicOffer:
+      type: object
+      required: [id, title, description, category, originalPrice, offerPrice, discountPercent, status, business, totalCapacity, totalBooked, occupancyPercent, demandLevel, availableSlots]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        originalPrice:
+          type: number
+        offerPrice:
+          type: number
+        discountPercent:
+          type: number
+        status:
+          type: string
+        bannerUrl:
+          type: ["string", "null"]
+        business:
+          $ref: "#/components/schemas/Business"
+        totalCapacity:
+          type: integer
+        totalBooked:
+          type: integer
+        occupancyPercent:
+          type: number
+        demandLevel:
+          type: string
+        availableSlots:
+          type: integer
+        recentBookings:
+          type: integer
+        isTrending:
+          type: boolean
+        isFillingFast:
+          type: boolean
+        recommendedSlotTime:
+          type: ["string", "null"]
+        endDate:
+          type: string
+        endTime:
+          type: string
+
+    PublicOfferDetail:
+      type: object
+      required: [id, title, description, category, originalPrice, offerPrice, discountPercent, status, business, slots, demandInfo]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        originalPrice:
+          type: number
+        offerPrice:
+          type: number
+        discountPercent:
+          type: number
+        startDate:
+          type: string
+        endDate:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        terms:
+          type: ["string", "null"]
+        status:
+          type: string
+        bannerUrl:
+          type: ["string", "null"]
+        business:
+          $ref: "#/components/schemas/Business"
+        slots:
+          type: array
+          items:
+            $ref: "#/components/schemas/Slot"
+        demandInfo:
+          $ref: "#/components/schemas/DemandInfo"
+
+    DemandInfo:
+      type: object
+      required: [recentBookings, occupancyPercent, demandLevel, isFillingFast, isTrending, recommendedSlotId, recommendedSlotTime]
+      properties:
+        recentBookings:
+          type: integer
+        occupancyPercent:
+          type: number
+        demandLevel:
+          type: string
+        isFillingFast:
+          type: boolean
+        isTrending:
+          type: boolean
+        recommendedSlotId:
+          type: ["integer", "null"]
+        recommendedSlotTime:
+          type: ["string", "null"]
+
+    FeaturedOffersResponse:
+      type: object
+      required: [featured, trending, fillingFast]
+      properties:
+        featured:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicOffer"
+        trending:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicOffer"
+        fillingFast:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicOffer"
+
+    DemandPulse:
+      type: object
+      required: [recentBookings, activeOffers, liveOccupancy, bookingVelocity]
+      properties:
+        recentBookings:
+          type: array
+          items:
+            $ref: "#/components/schemas/PulseBooking"
+        activeOffers:
+          type: integer
+        liveOccupancy:
+          type: number
+        bookingVelocity:
+          type: number
+
+    PulseBooking:
+      type: object
+      required: [id, offerTitle, businessName, businessType, customerName, createdAt, slotTime]
+      properties:
+        id:
+          type: integer
+        offerTitle:
+          type: string
+        businessName:
+          type: string
+        businessType:
+          type: string
+        customerName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        slotTime:
+          type: string
+
+    # DASHBOARD
+    DashboardStats:
+      type: object
+      required: [totalOffers, activeOffers, totalBookings, totalRevenue, occupancyRate, capacityUtilization, todayBookings, pendingSlots]
+      properties:
+        totalOffers:
+          type: integer
+        activeOffers:
+          type: integer
+        totalBookings:
+          type: integer
+        totalRevenue:
+          type: number
+        occupancyRate:
+          type: number
+        capacityUtilization:
+          type: number
+        todayBookings:
+          type: integer
+        pendingSlots:
+          type: integer
+        bookingsByStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusCount"
+        offersByCategory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryCount"
+
+    StatusCount:
+      type: object
+      required: [status, count]
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+
+    CategoryCount:
+      type: object
+      required: [category, count]
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+
+    ActivityItem:
+      type: object
+      required: [id, type, message, offerTitle, businessName, customerName, createdAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        message:
+          type: string
+        offerTitle:
+          type: string
+        businessName:
+          type: string
+        customerName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        bookingReference:
+          type: string
+
+    DemandAnalytics:
+      type: object
+      required: [hourlyBookings, businessTypeBreakdown, peakHour, conversionRate]
+      properties:
+        hourlyBookings:
+          type: array
+          items:
+            $ref: "#/components/schemas/HourlyCount"
+        businessTypeBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/BusinessTypeCount"
+        peakHour:
+          type: integer
+        conversionRate:
+          type: number
+
+    HourlyCount:
+      type: object
+      required: [hour, count]
+      properties:
+        hour:
+          type: integer
+        count:
+          type: integer
+
+    BusinessTypeCount:
+      type: object
+      required: [businessType, bookings, offers]
+      properties:
+        businessType:
+          type: string
+        bookings:
+          type: integer
+        offers:
+          type: integer
+
+    TopOffer:
+      type: object
+      required: [id, title, businessName, category, totalBookings, occupancyPercent, revenue]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        businessName:
+          type: string
+        category:
+          type: string
+        totalBookings:
+          type: integer
+        occupancyPercent:
+          type: number
+        revenue:
+          type: number

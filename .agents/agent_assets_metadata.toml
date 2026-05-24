@@ -1,0 +1,32 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "03T0l5iCcpqlui3O9EzZs"
+uri = "file://artifacts/smartreserve/public/images/gym-banner.png"
+type = "image"
+title = "Gym workout premium interior"
+
+[[generated]]
+id = "_8PR1ZZvi7w_Yhv7zGkVG"
+uri = "file://artifacts/smartreserve/public/images/salon-banner.png"
+type = "image"
+title = "High end salon interior"
+
+[[generated]]
+id = "YpJtsGQiJhxGcwr4lGvlI"
+uri = "file://artifacts/smartreserve/public/images/restaurant-banner.png"
+type = "image"
+title = "Fine dining restaurant interior"
+
+[[generated]]
+id = "NeTob33T_L-FjC-B6XotG"
+uri = "file://artifacts/smartreserve/public/images/clinic-banner.png"
+type = "image"
+title = "Abstract modern clinic space"
+
+[[generated]]
+id = "4S1RnV-rlJZt7dYSFXUov"
+uri = "file://artifacts/smartreserve/public/images/hero-bg.png"
+type = "image"
+title = "Abstract demand data viz"

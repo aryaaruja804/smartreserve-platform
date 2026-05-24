@@ -1,0 +1,599 @@
+You are an elite senior full-stack engineer, backend architect, product designer, SaaS UX expert, and realtime systems engineer.
+
+Your task is to generate a COMPLETE PRODUCTION-GRADE FULL-STACK PLATFORM from scratch.
+
+Project Name:
+
+# SmartReserve — Smart Demand-Aware Offer Booking Platform
+
+==================================================
+IMPORTANT PRODUCT DIRECTION
+===========================
+
+This platform should feel like:
+
+* a real funded startup product
+* a modern intelligent booking marketplace
+* a realtime operational platform
+* a premium SaaS-grade system
+* a scalable production-ready application
+
+The platform should be designed for:
+
+* real customer usage
+* operational reliability
+* realtime responsiveness
+* intelligent booking experiences
+
+Avoid:
+
+* template-like dashboards
+* fake static analytics
+* disconnected pages
+* generic CRUD layouts
+* unrealistic mockup behavior
+* placeholder-only implementations
+* college-project styling
+
+The final product should feel:
+
+# intelligent, realtime, operational, scalable, premium, and believable.
+
+==================================================
+CORE PRODUCT IDEA
+=================
+
+Businesses like:
+
+* gyms
+* salons
+* clinics
+* restaurants
+* turfs
+* coaching centers
+
+can create discounted time-slot-based offers.
+
+Customers browse these offers publicly and reserve slots online.
+
+The system intelligently guides users using:
+
+* demand indicators
+* crowd awareness
+* urgency psychology
+* smart recommendations
+* realtime occupancy behavior
+
+==================================================
+PLATFORM IDENTITY
+=================
+
+The platform’s core identity is:
+
+# Smart Demand Engine
+
+The system dynamically tracks:
+
+* occupancy
+* demand spikes
+* trending offers
+* realtime booking activity
+* slot popularity
+* crowd levels
+
+Features:
+
+🔥 Filling Fast
+→ shown when occupancy becomes greater than 70%
+
+⚡ Demand Pulse
+→ “3 bookings in last 15 mins”
+
+⭐ Smart Recommendation
+→ “Recommended Slot: 6 PM • Less Crowded”
+
+🟢 Best Availability
+→ least crowded slots highlighted
+
+Realtime updates should visually affect:
+
+* occupancy indicators
+* dashboards
+* activity feeds
+* seat counts
+* recommendation systems
+* demand analytics
+
+==================================================
+TECH STACK
+==========
+
+Frontend:
+
+* React
+* TypeScript
+* Vite
+* Tailwind CSS
+
+Backend:
+
+* .NET 8 Web API
+
+Database:
+
+* PostgreSQL
+
+Realtime:
+
+* SignalR
+
+API Documentation:
+
+* Swagger/OpenAPI
+
+==================================================
+AUTHENTICATION SYSTEM
+=====================
+
+Implement secure admin-only authentication.
+
+Features:
+
+* login page
+* JWT authentication
+* protected admin routes
+* logout functionality
+* token persistence
+
+Seed admin allowed:
+[admin@smartreserve.com](mailto:admin@smartreserve.com)
+password123
+
+Passwords must be hashed.
+
+==================================================
+BUSINESS PROFILE SYSTEM
+=======================
+
+Business fields:
+
+* business name
+* business type
+* owner name
+* phone
+* email
+* address
+* city
+* opening time
+* closing time
+* logo/banner
+
+Business Types:
+
+* Gym
+* Salon
+* Restaurant
+* Clinic
+* Turf
+* Coaching
+* Other
+
+==================================================
+OFFER MANAGEMENT SYSTEM
+=======================
+
+Admin can:
+
+* create offers
+* edit offers
+* delete offers
+* pause offers
+* activate offers
+
+Offer fields:
+
+* title
+* description
+* category
+* original price
+* offer price
+* discount percentage
+* start/end date
+* start/end time
+* terms
+* status
+* banner image
+
+Offer statuses:
+
+* Draft
+* Active
+* Paused
+* Expired
+* Cancelled
+
+==================================================
+SLOT MANAGEMENT SYSTEM
+======================
+
+Each offer has multiple slots.
+
+Slot fields:
+
+* slot date
+* start time
+* end time
+* capacity
+* booked count
+* available count
+* slot status
+
+Slot statuses:
+
+* Available
+* Full
+* Closed
+* Expired
+* Cancelled
+
+==================================================
+PUBLIC CUSTOMER PORTAL
+======================
+
+Public users can:
+
+* browse offers
+* search offers
+* filter offers
+* open offer details
+* reserve slots
+
+Customer login is NOT required.
+
+==================================================
+PUBLIC HOMEPAGE
+===============
+
+Homepage should feel:
+
+* premium
+* realtime
+* intelligent
+* dynamic
+* conversion-focused
+
+Include:
+
+* hero section
+* featured offers
+* trending offers
+* realtime demand pulse
+* filling-fast indicators
+* countdown timers
+* smart recommendations
+* occupancy progress bars
+* responsive premium cards
+
+==================================================
+OFFER DETAIL PAGE
+=================
+
+Must contain:
+
+* business details
+* pricing breakdown
+* discount percentage
+* slot availability
+* occupancy indicators
+* smart slot recommendation
+* remaining seats
+* demand pulse
+* booking form
+* terms & conditions
+
+Slot selection should feel:
+
+* interactive
+* realtime
+* intelligent
+
+==================================================
+BOOKING FLOW
+============
+
+Booking form fields:
+
+* customer name
+* phone number
+* email optional
+* selected slot
+* people count
+* special note optional
+
+After successful booking:
+
+* generate booking reference
+* animated confirmation state
+* QR-style booking visual
+* success feedback
+
+==================================================
+ADMIN DASHBOARD
+===============
+
+Dashboard should feel like:
+
+# a realtime operational control center
+
+Include:
+
+* total offers
+* active offers
+* total bookings
+* occupancy rate
+* capacity utilization
+* revenue metrics
+* conversion metrics
+* recent bookings
+* realtime activity feed
+* demand analytics
+* live booking log
+
+Use:
+
+* charts
+* animated counters
+* occupancy bars
+* realtime transitions
+* heat indicators
+* operational analytics
+
+==================================================
+REALTIME SYSTEM
+===============
+
+Implement realtime updates using SignalR.
+
+Realtime updates:
+
+* occupancy changes
+* seat count updates
+* booking activity
+* dashboard metrics
+* demand pulse indicators
+* slot popularity
+
+The platform should visually feel alive.
+
+==================================================
+DEMAND SIMULATION ENGINE
+========================
+
+Implement intelligent simulation behavior.
+
+Different business types should behave differently:
+
+Gym:
+
+* evening demand spikes
+
+Restaurant:
+
+* lunch rush
+
+Clinic:
+
+* morning balanced traffic
+
+Turf:
+
+* weekend demand spikes
+
+Simulation should:
+
+* generate realistic booking behavior
+* update occupancy naturally
+* create believable demand patterns
+
+Avoid fake random spam behavior.
+
+==================================================
+VALIDATION SYSTEM
+=================
+
+Implement STRICT frontend and backend validations.
+
+Validate:
+
+* phone number must be exactly 10 digits
+* people count > 0
+* capacity > 0
+* offer price < original price
+* required fields mandatory
+* start time < end time
+* slot full restrictions
+* expired offers cannot be booked
+* duplicate booking restrictions
+* invalid input rejection
+
+Use:
+
+* inline validation messages
+* red borders
+* disabled buttons when invalid
+
+Avoid ugly browser alert popups.
+
+==================================================
+DATABASE DESIGN
+===============
+
+Create proper relational database architecture.
+
+Tables:
+
+* Users
+* Businesses
+* Offers
+* OfferSlots
+* Bookings
+
+Relationships:
+Business → Offers → Slots → Bookings
+
+==================================================
+API ARCHITECTURE
+================
+
+Implement REST APIs for:
+
+* authentication
+* offers
+* slots
+* bookings
+* dashboard analytics
+
+Use:
+
+* controllers
+* services
+* DTOs
+* repository pattern
+* clean architecture
+
+==================================================
+UI/UX STYLE
+===========
+
+The platform should visually resemble:
+
+* Stripe
+* Vercel
+* Linear
+* modern SaaS products
+
+Use:
+
+* premium gradients
+* glassmorphism
+* soft shadows
+* smooth animations
+* hover effects
+* responsive layouts
+* modern typography
+
+Dark mode preferred.
+
+==================================================
+RESPONSIVENESS
+==============
+
+Entire platform must be:
+
+* fully responsive
+* mobile optimized
+* tablet friendly
+
+Booking flow should feel smooth on mobile devices.
+
+==================================================
+MICROINTERACTIONS
+=================
+
+Add:
+
+* animated counters
+* smooth transitions
+* hover glow effects
+* occupancy animations
+* pulse indicators
+* loading skeletons
+* smooth modal animations
+
+==================================================
+CODE QUALITY
+============
+
+Generate:
+
+* scalable folder structure
+* reusable components
+* clean naming conventions
+* readable architecture
+* maintainable codebase
+
+==================================================
+IMPORTANT ENGINEERING REQUIREMENTS
+==================================
+
+Do not generate isolated mock UI screens.
+
+Generate a fully connected working application where:
+
+* frontend
+* backend
+* database
+* realtime updates
+* validations
+* authentication
+* business logic
+
+all work together cohesively.
+
+Avoid fake/static placeholder behavior.
+
+All:
+
+* dashboards
+* occupancy indicators
+* activity feeds
+* demand metrics
+* booking states
+* recommendation systems
+
+must be driven by realistic backend-connected state and business logic.
+
+Every major action should affect realtime system state dynamically.
+
+Examples:
+
+* booking a slot updates occupancy
+* dashboard metrics update automatically
+* realtime activity feed updates
+* slot recommendations recalculate dynamically
+* seat availability changes instantly
+
+The system should behave like:
+
+# a living realtime marketplace
+
+NOT:
+
+# a static demo application
+
+Prioritize:
+
+* realism
+* operational consistency
+* smooth UX
+* production-grade interactions
+* scalable architecture
+
+over decorative-only visuals.
+
+==================================================
+FINAL GOAL
+==========
+
+The final product should immediately communicate:
+
+* product maturity
+* operational intelligence
+* realtime responsiveness
+* modern SaaS UX
+* scalable architecture
+* premium user experience
+
+The platform should feel like:
+
+# a real intelligent realtime booking platform ready for production deployment and real customer usage.
