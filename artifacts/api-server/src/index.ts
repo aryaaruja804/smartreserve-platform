@@ -3,6 +3,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { initWebSocket } from "./lib/websocket";
 import { seedDatabase } from "./lib/seed";
+import { startDemandSimulator } from "./lib/demand-simulator";
 
 const rawPort = process.env["PORT"];
 
@@ -25,4 +26,5 @@ server.listen(port, async () => {
   } catch (err) {
     logger.warn({ err }, "Seed skipped or failed (non-fatal)");
   }
+  startDemandSimulator();
 });

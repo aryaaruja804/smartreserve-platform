@@ -1,9 +1,11 @@
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { useGetFeaturedOffers, useGetDemandPulse } from "@workspace/api-client-react";
+import { useGetFeaturedOffers, useGetDemandPulse, getGetFeaturedOffersQueryKey, getGetDemandPulseQueryKey } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Zap, TrendingUp, Clock, ChevronRight, Activity, Users, Star, ArrowRight, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRealtime } from "@/hooks/use-realtime";
 
 function OccupancyBar({ percent, className }: { percent: number; className?: string }) {
   const color = percent >= 90 ? "bg-red-500" : percent >= 70 ? "bg-orange-500" : percent >= 40 ? "bg-yellow-500" : "bg-green-500";
@@ -87,15 +89,15 @@ function OfferCard({ offer }: { offer: any }) {
   );
 }
 
-function PulseFeed({ bookings }: { bookings: any[] }) {
-  const [visible, setVisible] = useState<any[]>([]);
+type LiveBooking = {
+  id: number | string;
+  customerName: string;
+  offerTitle: string;
+  slotTime: string;
+};
 
-  useEffect(() => {
-    if (!bookings?.length) return;
-    setVisible(bookings.slice(0, 5));
-  }, [bookings]);
-
-  if (!visible.length) return (
+function PulseFeed({ bookings }: { bookings: LiveBooking[] }) {
+  if (!bookings.length) return (
     <div className="space-y-2">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="h-12 rounded-lg bg-muted/40 animate-pulse" />
@@ -105,8 +107,12 @@ function PulseFeed({ bookings }: { bookings: any[] }) {
 
   return (
     <div className="space-y-2">
-      {visible.map((b, i) => (
-        <div key={b.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-accent/40 border border-border/50 text-sm slide-in-right" style={{ animationDelay: `${i * 60}ms` }}>
+      {bookings.map((b, i) => (
+        <div
+          key={b.id}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg bg-accent/40 border border-border/50 text-sm slide-in-right"
+          style={{ animationDelay: `${i * 40}ms` }}
+        >
           <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0 pulse-glow" />
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground">{b.customerName}</span>
@@ -121,11 +127,55 @@ function PulseFeed({ bookings }: { bookings: any[] }) {
 }
 
 export default function Home() {
+  const queryClient = useQueryClient();
   const { data: featured, isLoading: featuredLoading } = useGetFeaturedOffers();
-  const { data: pulse, isLoading: pulseLoading } = useGetDemandPulse({ query: { refetchInterval: 10000 } });
+  const { data: pulse, isLoading: pulseLoading } = useGetDemandPulse();
+
+  const [liveBookings, setLiveBookings] = useState<LiveBooking[]>([]);
+  const [liveOccupancy, setLiveOccupancy] = useState<number | null>(null);
+  const velocityRef = useRef(0);
+  const [velocity, setVelocity] = useState(0);
+
+  useEffect(() => {
+    if (pulse?.bookingVelocity !== undefined) {
+      velocityRef.current = pulse.bookingVelocity;
+      setVelocity(pulse.bookingVelocity);
+    }
+  }, [pulse?.bookingVelocity]);
+
+  useRealtime((event) => {
+    if (event.type === "new_booking") {
+      const booking = event.data as LiveBooking;
+      setLiveBookings((prev) => [booking, ...prev].slice(0, 8));
+      velocityRef.current += 1;
+      setVelocity(velocityRef.current);
+      queryClient.invalidateQueries({ queryKey: getGetFeaturedOffersQueryKey() });
+    }
+    if (event.type === "stats_update") {
+      const stats = event.data as { liveOccupancy?: number };
+      if (stats.liveOccupancy !== undefined) {
+        setLiveOccupancy(stats.liveOccupancy);
+      }
+    }
+  });
+
+  const displayedOccupancy = liveOccupancy ?? pulse?.liveOccupancy ?? null;
+  const displayedVelocity = velocity || pulse?.bookingVelocity || 0;
+
+  const seedBookings: LiveBooking[] = (pulse?.recentBookings ?? []).map((b: any) => ({
+    id: b.id ?? b.bookingReference ?? Math.random(),
+    customerName: b.customerName,
+    offerTitle: b.offerTitle,
+    slotTime: b.slotTime,
+  }));
+
+  const allLiveIds = new Set(liveBookings.map((b) => String(b.id)));
+  const mergedBookings = [
+    ...liveBookings,
+    ...seedBookings.filter((b) => !allLiveIds.has(String(b.id))),
+  ].slice(0, 8);
 
   const allFeatured = featured?.featured ?? [];
-  const trending = featured?.trending ?? [];
   const fillingFast = featured?.fillingFast ?? [];
 
   return (
@@ -167,22 +217,24 @@ export default function Home() {
                 <div className="text-2xl font-bold text-foreground">{pulse?.activeOffers ?? "–"}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">Active offers</div>
               </div>
-              <div className="bg-card border border-card-border rounded-xl p-4">
-                <div className="text-2xl font-bold text-foreground">{pulse?.liveOccupancy?.toFixed(1) ?? "–"}%</div>
+              <div className="bg-card border border-card-border rounded-xl p-4 transition-all duration-500">
+                <div className="text-2xl font-bold text-foreground">
+                  {displayedOccupancy !== null ? `${displayedOccupancy.toFixed(1)}%` : "–"}
+                </div>
                 <div className="text-xs text-muted-foreground mt-0.5">Live occupancy</div>
               </div>
               <div className="col-span-2 bg-card border border-card-border rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="w-4 h-4 text-primary" />
                   <span className="text-xs font-semibold text-foreground">Booking velocity</span>
-                  <span className="ml-auto text-xs font-bold text-green-400">{pulse?.bookingVelocity ?? 0}/hr</span>
+                  <span className="ml-auto text-xs font-bold text-green-400">{displayedVelocity}/hr</span>
                 </div>
-                <OccupancyBar percent={Math.min((pulse?.bookingVelocity ?? 0) * 5, 100)} />
+                <OccupancyBar percent={Math.min(displayedVelocity * 5, 100)} />
               </div>
             </div>
           </div>
 
-          {/* Demand pulse feed */}
+          {/* Live booking feed */}
           <div className="lg:col-span-2 bg-card border border-card-border rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-2 h-2 rounded-full bg-green-400 pulse-glow" />
@@ -191,12 +243,12 @@ export default function Home() {
                 <Clock className="w-3 h-3" /> Real-time
               </span>
             </div>
-            {pulseLoading ? (
+            {pulseLoading && mergedBookings.length === 0 ? (
               <div className="space-y-2">
                 {[...Array(4)].map((_, i) => <div key={i} className="h-10 rounded-lg bg-muted/40 animate-pulse" />)}
               </div>
             ) : (
-              <PulseFeed bookings={pulse?.recentBookings ?? []} />
+              <PulseFeed bookings={mergedBookings} />
             )}
           </div>
         </div>
